@@ -2,11 +2,16 @@
 // @name        rrcrawler
 // @namespace   rrscripts
 // @description Collects market data from RivalRegions
-// @include     http://rivalregions.com/#storage/listed*
+// @include     http://rivalregions.com/#storage
 // @version     1
 // @grant       none
 // @require     https://raw.githubusercontent.com/eligrey/FileSaver.js/master/FileSaver.min.js
 // ==/UserScript==
+
+var firstTimeoutDur = 5000;
+var subsTimeoutDur = 2000;
+var itemsList = [];
+var currentItemIndex = 0;
 
 // auxiliary function for getting strings with leading zeros
 // source: http://stackoverflow.com/questions/2998784/how-to-output-integers-with-leading-zeros-in-javascript
@@ -16,8 +21,9 @@ function pad(num, size) {
     return s;
 }
 
-function collectDataAction (event) {
-  var list = document.getElementById ("list_tbody").children;
+// extracts and saves data from a table that represents all entries for an item
+// receives a list of <tr>'s
+function fetchFromTable (list) {
   var textBody = "";
   var fileName;
   var dateTime;
@@ -69,18 +75,62 @@ function collectDataAction (event) {
   saveAs(blob, fileName);
 }
 
+function handleStorageItem (item) {
+  
+  item.click();
+
+  // wait until the storage data loads
+  setTimeout (function () {
+    var listLink = document.getElementsByClassName ("storage_see");
+      
+    if (listLink.length == 0) {
+      // something has gone wrong; proceed with next item
+      handleNextListItem ();
+    } else {
+      listLink = listLink[0];
+      listLink.click ();
+        
+      setTimeout (function () {
+        var close = document.getElementById("slide_close");
+          
+        fetchFromTable (document.getElementById ("list_tbody").children);
+        close.click ();
+          
+        // done, proceed with the next item
+        setTimeout ( handleNextListItem, subsTimeoutDur);
+      }, subsTimeoutDur);
+    }
+  }, subsTimeoutDur);
+}
+
+function handleNextListItem () {
+  if (currentItemIndex < itemsList.length) {
+    handleStorageItem (itemsList[currentItemIndex]);
+    ++currentItemIndex;
+  } else {
+    alert ("Done loading data");
+  }
+}
+
+function collectDataAction (event) {
+  itemsList = document.getElementsByClassName ("storage_item");
+  currentItemIndex = 0;
+  
+  handleNextListItem ();
+}
+
 window.addEventListener('load', function() {
   setTimeout (function () {
     // create an additional button
     var button       = document.createElement ('div');
-    button.innerHTML = '<button id="collectButton">Collect data</button>';
-    document.getElementById("header_slide").appendChild(button);
+    button.innerHTML = '<button id="collectButton" style="top: 200px;">Collect data</button>';
+    document.getElementById("body").appendChild(button);
     
     // connect button to event listener
     document.getElementById ("collectButton").addEventListener (
       "click", collectDataAction, false
     );
-  }, 3000)
-}, false);
+  }, firstTimeoutDur);
+}, false)
 
 
