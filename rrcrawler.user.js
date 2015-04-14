@@ -1,4 +1,4 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name        rrcrawler
 // @namespace   rrscripts
 // @description Collects market data from RivalRegions
@@ -75,6 +75,21 @@ function fetchFromTable (list) {
   saveAs(blob, fileName);
 }
 
+function fetchAndClose () {
+  var close = document.getElementById("slide_close");
+  
+  if (close == null) {
+	// wait until appearance
+    setTimeout (fetchAndClose, subsTimeoutDur);
+  } else {
+    fetchFromTable (document.getElementById ("list_tbody").children);
+    close.click ();
+      
+    // done, proceed with the next item
+    setTimeout (handleNextListItem, subsTimeoutDur);
+  }
+}
+
 function handleStorageItem (item) {
   
   item.click();
@@ -90,15 +105,7 @@ function handleStorageItem (item) {
       listLink = listLink[0];
       listLink.click ();
         
-      setTimeout (function () {
-        var close = document.getElementById("slide_close");
-          
-        fetchFromTable (document.getElementById ("list_tbody").children);
-        close.click ();
-          
-        // done, proceed with the next item
-        setTimeout ( handleNextListItem, subsTimeoutDur);
-      }, subsTimeoutDur);
+      setTimeout (fetchAndClose, subsTimeoutDur);
     }
   }, subsTimeoutDur);
 }
