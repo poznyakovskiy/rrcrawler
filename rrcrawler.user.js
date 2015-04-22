@@ -1,4 +1,4 @@
-﻿// ==UserScript==
+// ==UserScript==
 // @name        rrcrawler
 // @namespace   rrscripts
 // @description Collects market data from RivalRegions
@@ -19,6 +19,11 @@ function pad(num, size) {
     var s = num+"";
     while (s.length < size) s = "0" + s;
     return s;
+}
+
+// get item number fron url
+function getItemNum (url) {
+  return url.substr (url.lastIndexOf('/')+1, url.length-1);
 }
 
 // extracts and saves data from a table that represents all entries for an item
@@ -58,7 +63,7 @@ function fetchFromTable (list) {
   // create file name
   // get resource id from url
   url = window.location.href;
-  fileName = url.substr (url.lastIndexOf('/')+1, url.length-1) + "_";
+  fileName = getItemNum (url) + "_";
   
   // get current date and time
   dateTime = new Date ();
@@ -79,7 +84,7 @@ function fetchAndClose () {
   var close = document.getElementById("slide_close");
   
   if (close == null) {
-	// wait until appearance
+	  // wait until appearance
     setTimeout (fetchAndClose, subsTimeoutDur);
   } else {
     fetchFromTable (document.getElementById ("list_tbody").children);
