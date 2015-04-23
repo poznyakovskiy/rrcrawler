@@ -43,7 +43,7 @@ function fetchFromTable (list) {
     node = list[i];
     
     // fetch bidder's name
-    textBody += node.children[1].children[0].innerHTML + ",";
+    textBody += "\"" + node.children[1].children[0].innerHTML + "\",";
     
     // fetch location
     textBody += node.children[1].children[2].innerHTML + ",";
