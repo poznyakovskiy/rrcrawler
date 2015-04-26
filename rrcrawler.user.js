@@ -28,7 +28,8 @@ function getItemNum (url) {
 
 // extracts and saves data from a table that represents all entries for an item
 // receives a list of <tr>'s
-function fetchFromTable (list) {
+function fetchFromTable () {
+  var list = document.getElementById ("list_tbody").children
   var textBody = "";
   var fileName;
   var dateTime;
@@ -87,7 +88,7 @@ function fetchAndClose () {
 	  // wait until appearance
     setTimeout (fetchAndClose, subsTimeoutDur);
   } else {
-    fetchFromTable (document.getElementById ("list_tbody").children);
+    fetchFromTable ();
     close.click ();
       
     // done, proceed with the next item
@@ -131,16 +132,40 @@ function collectDataAction (event) {
   handleNextListItem ();
 }
 
+function collectCurrentDataAction (event) {
+  var listLink = document.getElementsByClassName ("storage_see")[0];
+  
+  listLink.click ();
+  setTimeout (function () {
+    var close = document.getElementById("slide_close");
+    
+    fetchFromTable ();
+    close.click ();
+  }, subsTimeoutDur);
+}
+
 window.addEventListener('load', function() {
   setTimeout (function () {
-    // create an additional button
-    var button       = document.createElement ('div');
-    button.innerHTML = '<button id="collectButton" style="top: 200px;">Collect data</button>';
-    document.getElementById("body").appendChild(button);
+    var body = document.getElementById("body");
+    var buttonAll;
+    var buttonCurrent;
     
-    // connect button to event listener
+    // create a button for collecting all data
+    buttonAll       = document.createElement ('div');
+    buttonAll.innerHTML = '<button id="collectButton" style="top: 200px;">Collect data</button>';
+    body.appendChild(buttonAll);
+    
     document.getElementById ("collectButton").addEventListener (
       "click", collectDataAction, false
+    );
+    
+    // create another button for collecting just the data on the current item
+    buttonCurrent       = document.createElement ('div');
+    buttonCurrent.innerHTML = '<button id="collectButtonCurrent" style="top: 240px;">Collect current</button>';
+    body.appendChild(buttonCurrent);
+    
+    document.getElementById ("collectButtonCurrent").addEventListener (
+      "click", collectCurrentDataAction, false
     );
   }, firstTimeoutDur);
 }, false)
